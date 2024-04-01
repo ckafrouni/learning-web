@@ -1,0 +1,91 @@
+*,
+*::before,
+*::after {
+	box-sizing: 0;
+	margin: 0;
+	padding: 0;
+}
+
+:root {
+	--clr--text: white;
+	--clr--bg: black;
+	--clr--board-bg: lightgray;
+	--clr--board-outline: hsl(0, 0%, 10%);
+}
+
+body {
+	font-family: system-ui, sans-serif;
+	background-color: var(--clr--bg);
+	color: var(--clr--text);
+	height: 100dvh;
+}
+
+.game {
+	height: 100%;
+	display: grid;
+	grid-template-rows: auto 1fr auto;
+	justify-items: center;
+	align-items: center;
+}
+
+.game__header {
+	border: 5px solid var(--clr--board-outline);
+	border-top: none;
+	border-radius: 0 0 5px 5px;
+	padding: 2rem 4rem;
+}
+
+.game__title {
+	font-weight: 900;
+}
+
+.snake-body {
+	color: darkgreen;
+}
+
+.snake-head {
+	color: lightgreen;
+}
+
+.last-letter {
+	color: lightgreen;
+}
+
+.game__board {
+	--board-width: 24;
+	--board-height: 24;
+	--board-unit: 1rem;
+
+	/* 	background-color: var(--clr--board-bg); */
+	border: 1rem solid var(--clr--board-outline);
+	border-radius: 5px;
+
+	background-size: var(--board-unit) var(--board-unit);
+	background-image: linear-gradient(
+			to right,
+			hsl(0, 0%, 10%) 1px,
+			transparent 1px
+		),
+		linear-gradient(to bottom, hsl(0, 0%, 10%) 1px, transparent 1px);
+
+	width: calc(var(--board-unit) * var(--board-width));
+	height: calc(var(--board-unit) * var(--board-height));
+}
+
+.board {
+	width: 100%;
+	height: 100%;
+	outline: 2px solid hsl(0, 0%, 20%);
+}
+
+.game__stats {
+	border: 5px solid var(--clr--board-outline);
+	border-bottom: none;
+	border-radius: 5px 5px 0 0;
+	padding: 2rem 4rem;
+}
+
+.stats__score {
+	font-size: 1.5rem;
+	font-weight: bold;
+}
