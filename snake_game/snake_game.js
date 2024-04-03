@@ -2,18 +2,58 @@
 const BOARD_SIZE = 24;
 const CELL_SIZE = 20; // in pixels
 const INITIAL_SNAKE_LENGTH = 1;
-const APPLE_SCORE = 10;
+const APPLE_SCORE = 1;
+const FPS = 10;
 
 // Get references to HTML elements
 const canvas = document.getElementById("gameBoard");
 const ctx = canvas.getContext("2d");
 const scoreDisplay = document.getElementById("score");
+const controls = {
+    start: document.getElementById("start"),
+    pause: document.getElementById("pause"),
+}
 
-// Initialize game variables
-let snake = [];
-let direction = "right";
-let apple = {};
-let score = 0;
+// Start button
+controls.start.addEventListener("click", () => {
+    controls.start.hidden = true;
+    controls.pause.hidden = false;
+    initGame();
+});
+
+// Pause button
+controls.pause.addEventListener("click", () => {
+    if (gameState.running) {
+        controls.pause.textContent = "Resume";
+        gameState.running = false;
+    }
+    else {
+        controls.pause.textContent = "Pause";
+        gameState.running = true;
+    }
+});
+
+/**
+ * @typedef {Object} GameState
+ * @property {Array<{x: number, y: number}>} snake
+ * @property {string} direction
+ * @property {{x: number, y: number}} apple
+ * @property {number} score
+ */
+
+/** @type {GameState} */
+const initialGameState = {
+    running: false,
+    snake: [
+        { x: 5, y: 5 },
+    ],
+    direction: "right",
+    apple: {},
+    score: 0,
+};
+
+// Game state
+const gameState = { ...initialGameState };
 
 // Initialize game board
 function initBoard() {
@@ -21,17 +61,9 @@ function initBoard() {
     canvas.height = BOARD_SIZE * CELL_SIZE;
 }
 
-// Initialize snake
-function initSnake() {
-    snake = [];
-    for (let i = 0; i < INITIAL_SNAKE_LENGTH; i++) {
-        snake.push({ x: i + 5, y: 5 });
-    }
-}
-
 // Initialize apple
 function spawnApple() {
-    apple = {
+    gameState.apple = {
         x: Math.floor(Math.random() * BOARD_SIZE),
         y: Math.floor(Math.random() * BOARD_SIZE)
     };
@@ -40,7 +72,9 @@ function spawnApple() {
 // Draw a single cell on the game board
 function drawCell(x, y, color) {
     ctx.fillStyle = color;
-    ctx.fillRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+    ctx.beginPath();
+    ctx.roundRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE - 2, CELL_SIZE - 2, 5)
+    ctx.fill();
 }
 
 // Draw the entire game board
@@ -49,27 +83,42 @@ function drawBoard() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // Draw snake
-    snake.forEach((segment) => {
+    gameState.snake.forEach((segment) => {
         drawCell(segment.x, segment.y, "green");
     });
 
     // Draw apple
-    drawCell(apple.x, apple.y, "red");
+    drawCell(gameState.apple.x, gameState.apple.y, "red");
 }
 
 // Handle player input
 function handleInput(event) {
     const key = event.key.toLowerCase();
     if (["arrowup", "arrowdown", "arrowleft", "arrowright"].includes(key)) {
-        direction = key.substr(5);
+        const newDirection = key.substr(5);
+        if (isOppositeDirection(gameState.direction, newDirection)) {
+            return; // Skip if the direction is opposite
+        }
+        gameState.direction = newDirection;
     }
+}
+
+// Check if two directions are opposite
+function isOppositeDirection(dir1, dir2) {
+    return (
+        (dir1 === "up" && dir2 === "down") ||
+        (dir1 === "down" && dir2 === "up") ||
+        (dir1 === "left" && dir2 === "right") ||
+        (dir1 === "right" && dir2 === "left")
+    );
 }
 
 // Update game state
 function update() {
     // Move the snake
-    const head = { ...snake[0] };
-    switch (direction) {
+    const head = { ...gameState.snake[0] };
+
+    switch (gameState.direction) {
         case "up":
             head.y -= 1;
             break;
@@ -91,45 +140,53 @@ function update() {
     }
 
     // Check for collisions with self
-    if (snake.some((segment) => segment.x === head.x && segment.y === head.y)) {
+    if (gameState.snake.some((segment) => segment.x === head.x && segment.y === head.y)) {
         gameOver();
         return;
     }
 
     // Check for collision with apple
-    if (head.x === apple.x && head.y === apple.y) {
-        score += APPLE_SCORE;
-        scoreDisplay.textContent = score;
+    if (head.x === gameState.apple.x && head.y === gameState.apple.y) {
+        gameState.score += APPLE_SCORE;
+        scoreDisplay.textContent = gameState.score;
         spawnApple();
     } else {
-        snake.pop(); // Remove tail segment
+        gameState.snake.pop(); // Remove tail segment
     }
 
     // Add new head segment
-    snake.unshift(head);
+    gameState.snake.unshift(head);
 }
 
 // Game over
 function gameOver() {
-    alert("Game over! Your score: " + score);
-    resetGame();
+    gameState.running = false;
+    controls.start.hidden = false;
+    controls.pause.hidden = true;
 }
 
 // Reset game
 function resetGame() {
-    initSnake();
+    gameState.running = false;
+    gameState.snake = [...initialGameState.snake]; // Reset snake using spread operator
+    gameState.direction = initialGameState.direction;
+    gameState.apple = {};
+    gameState.score = 0;
     spawnApple();
-    score = 0;
-    scoreDisplay.textContent = score;
+    scoreDisplay.textContent = gameState.score;
 }
 
 // Main game loop
 let lastFrameTime = 0;
-const frameRate = 10; // Adjust the frame rate here (lower value = slower game)
 function gameLoop(currentTime) {
     const deltaTime = (currentTime - lastFrameTime) / 1000; // Convert milliseconds to seconds
 
-    if (deltaTime < 1 / frameRate) {
+    if (deltaTime < 1 / FPS) {
+        requestAnimationFrame(gameLoop);
+        return;
+    }
+
+    if (!gameState.running) {
         requestAnimationFrame(gameLoop);
         return;
     }
@@ -145,9 +202,10 @@ function gameLoop(currentTime) {
 // Initialize game
 function initGame() {
     initBoard();
-    initSnake();
-    spawnApple();
-    scoreDisplay.textContent = score;
+
+    // Reset game state
+    resetGame();
+    gameState.running = true;
 
     // Event listeners
     document.addEventListener("keydown", handleInput);
@@ -155,6 +213,3 @@ function initGame() {
     // Start game loop
     requestAnimationFrame(gameLoop);
 }
-
-//Start the game
-initGame();
