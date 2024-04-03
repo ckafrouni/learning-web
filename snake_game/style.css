@@ -11,6 +11,7 @@
 	--clr--bg: black;
 	--clr--board-bg: lightgray;
 	--clr--board-outline: hsl(0, 0%, 10%);
+	--btn-font-size: 6rem;
 }
 
 body {
@@ -23,7 +24,7 @@ body {
 .game {
 	height: 100%;
 	display: grid;
-	grid-template-rows: auto auto 1fr auto;
+	grid-template-rows: auto 1fr auto;
 	justify-items: center;
 	align-items: center;
 }
@@ -56,6 +57,8 @@ body {
 	--board-height: 24;
 	--board-unit: 1rem;
 
+	position: relative;
+
 	/* 	background-color: var(--clr--board-bg); */
 	border: 1rem solid var(--clr--board-outline);
 	border-radius: 5px;
@@ -68,6 +71,36 @@ body {
 
 	width: calc(var(--board-unit) * var(--board-width));
 	height: calc(var(--board-unit) * var(--board-height));
+}
+
+.game__controls {
+	position: absolute;
+	display: grid;
+	justify-content: center;
+	align-content: center;
+	background-color: hsla(0, 0%, 0%, 0.7);
+	backdrop-filter: blur(2px);
+	inset: 0;
+	color: darkgreen;
+}
+
+.control-btn {
+	font-size: var(--btn-font-size);
+	animation: loop 2s infinite;
+}
+
+@keyframes loop {
+	0% {
+		transform: scale(1);
+	}
+
+	50% {
+		transform: scale(1.1);
+	}
+
+	100% {
+		transform: scale(1);
+	}
 }
 
 .board {

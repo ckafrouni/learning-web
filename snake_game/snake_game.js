@@ -4,212 +4,211 @@ const CELL_SIZE = 20; // in pixels
 const INITIAL_SNAKE_LENGTH = 1;
 const APPLE_SCORE = 1;
 const FPS = 10;
+const DIRECTIONS = {
+    Up: "up",
+    Down: "down",
+    Left: "left",
+    Right: "right",
+};
+
+// Define colors
+const COLORS = {
+    snakeBody: "green",
+    snakeHead: "lightgreen",
+    apple: "red",
+};
+
+// Game status
+const GAME_STATUS = {
+    running: "running",
+    paused: "paused",
+    over: "over",
+};
+
 
 // Get references to HTML elements
 const canvas = document.getElementById("gameBoard");
+canvas.width = BOARD_SIZE * CELL_SIZE;
+canvas.height = BOARD_SIZE * CELL_SIZE;
+
 const ctx = canvas.getContext("2d");
 const scoreDisplay = document.getElementById("score");
-const controls = {
-    start: document.getElementById("start"),
-    pause: document.getElementById("pause"),
-}
+const controlsWrapper = document.getElementById("controlsWrapper");
+const constrolsWrapperDisplay = controlsWrapper.style.display;
+const playBtn = document.getElementById("playBtn");
+const pauseBtn = document.getElementById("pauseBtn");
 
-// Start button
-controls.start.addEventListener("click", () => {
-    controls.start.hidden = true;
-    controls.pause.hidden = false;
-    initGame();
+// On spacebar press, start the game or pause it
+document.addEventListener("keydown", (e) => {
+    if (e.key === " ") {
+        if (gameState.status === GAME_STATUS.running) {
+            pauseBtn.hidden = false;
+            controlsWrapper.style.display = constrolsWrapperDisplay;
+            pauseGame();
+        } else if (gameState.status === GAME_STATUS.paused) {
+            pauseBtn.hidden = true;
+            controlsWrapper.style.display = "none";
+            resumeGame();
+        } else {
+            playBtn.hidden = true;
+            controlsWrapper.style.display = "none";
+            startGame();
+        }
+    } else if (e.key === "Escape") {
+        pauseBtn.hidden = true;
+        controlsWrapper.style.display = "none";
+        endGame();
+    }
 });
 
-// Pause button
-controls.pause.addEventListener("click", () => {
-    if (gameState.running) {
-        controls.pause.textContent = "Resume";
-        gameState.running = false;
-    }
-    else {
-        controls.pause.textContent = "Pause";
-        gameState.running = true;
-    }
-});
-
-/**
- * @typedef {Object} GameState
- * @property {Array<{x: number, y: number}>} snake
- * @property {string} direction
- * @property {{x: number, y: number}} apple
- * @property {number} score
- */
-
-/** @type {GameState} */
-const initialGameState = {
-    running: false,
-    snake: [
-        { x: 5, y: 5 },
-    ],
-    direction: "right",
+// Define game state
+const gameState = {
+    status: GAME_STATUS.over,
+    snake: [],
     apple: {},
+    direction: DIRECTIONS.Right,
     score: 0,
+    interval: null,
 };
 
-// Game state
-const gameState = { ...initialGameState };
-
-// Initialize game board
-function initBoard() {
-    canvas.width = BOARD_SIZE * CELL_SIZE;
-    canvas.height = BOARD_SIZE * CELL_SIZE;
+const startGame = () => {
+    gameState.status = GAME_STATUS.running;
+    gameState.snake = createSnake();
+    gameState.apple = createApple();
+    gameState.direction = DIRECTIONS.Right;
+    gameState.score = 0;
+    gameState.interval = setInterval(updateGame, 1000 / FPS);
 }
 
-// Initialize apple
-function spawnApple() {
-    gameState.apple = {
+const resumeGame = () => {
+    gameState.status = GAME_STATUS.running;
+    gameState.interval = setInterval(updateGame, 1000 / FPS);
+}
+
+const pauseGame = () => {
+    gameState.status = GAME_STATUS.paused;
+    clearInterval(gameState.interval);
+}
+
+const endGame = () => {
+    gameState.status = GAME_STATUS.over;
+    clearInterval(gameState.interval);
+    playBtn.hidden = false;
+    controlsWrapper.style.display = constrolsWrapperDisplay;
+}
+
+const createSnake = () => {
+    const snake = [];
+    for (let i = 0; i < INITIAL_SNAKE_LENGTH; i++) {
+        snake.push({ x: i, y: 0 });
+    }
+    return snake;
+}
+
+const createApple = () => {
+    return {
         x: Math.floor(Math.random() * BOARD_SIZE),
-        y: Math.floor(Math.random() * BOARD_SIZE)
+        y: Math.floor(Math.random() * BOARD_SIZE),
     };
 }
 
-// Draw a single cell on the game board
-function drawCell(x, y, color) {
-    ctx.fillStyle = color;
-    ctx.beginPath();
-    ctx.roundRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE - 2, CELL_SIZE - 2, 5)
-    ctx.fill();
+const updateGame = () => {
+    updateSnake();
+    checkCollision();
+    checkAppleCollision();
+    drawGame();
 }
 
-// Draw the entire game board
-function drawBoard() {
-    // Clear the canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // Draw snake
-    gameState.snake.forEach((segment) => {
-        drawCell(segment.x, segment.y, "green");
-    });
-
-    // Draw apple
-    drawCell(gameState.apple.x, gameState.apple.y, "red");
-}
-
-// Handle player input
-function handleInput(event) {
-    const key = event.key.toLowerCase();
-    if (["arrowup", "arrowdown", "arrowleft", "arrowright"].includes(key)) {
-        const newDirection = key.substr(5);
-        if (isOppositeDirection(gameState.direction, newDirection)) {
-            return; // Skip if the direction is opposite
-        }
-        gameState.direction = newDirection;
-    }
-}
-
-// Check if two directions are opposite
-function isOppositeDirection(dir1, dir2) {
-    return (
-        (dir1 === "up" && dir2 === "down") ||
-        (dir1 === "down" && dir2 === "up") ||
-        (dir1 === "left" && dir2 === "right") ||
-        (dir1 === "right" && dir2 === "left")
-    );
-}
-
-// Update game state
-function update() {
-    // Move the snake
-    const head = { ...gameState.snake[0] };
-
+const updateSnake = () => {
+    const head = { ...gameState.snake[gameState.snake.length - 1] };
     switch (gameState.direction) {
-        case "up":
-            head.y -= 1;
+        case DIRECTIONS.Up:
+            head.y--;
             break;
-        case "down":
-            head.y += 1;
+        case DIRECTIONS.Down:
+            head.y++;
             break;
-        case "left":
-            head.x -= 1;
+        case DIRECTIONS.Left:
+            head.x--;
             break;
-        case "right":
-            head.x += 1;
+        case DIRECTIONS.Right:
+            head.x++;
             break;
     }
-
-    // Check for collisions with walls
-    if (head.x < 0 || head.x >= BOARD_SIZE || head.y < 0 || head.y >= BOARD_SIZE) {
-        gameOver();
-        return;
-    }
-
-    // Check for collisions with self
-    if (gameState.snake.some((segment) => segment.x === head.x && segment.y === head.y)) {
-        gameOver();
-        return;
-    }
-
-    // Check for collision with apple
+    gameState.snake.push(head);
     if (head.x === gameState.apple.x && head.y === gameState.apple.y) {
         gameState.score += APPLE_SCORE;
-        scoreDisplay.textContent = gameState.score;
-        spawnApple();
+        gameState.apple = createApple();
     } else {
-        gameState.snake.pop(); // Remove tail segment
+        gameState.snake.shift();
     }
-
-    // Add new head segment
-    gameState.snake.unshift(head);
 }
 
-// Game over
-function gameOver() {
-    gameState.running = false;
-    controls.start.hidden = false;
-    controls.pause.hidden = true;
+const checkCollision = () => {
+    const head = gameState.snake[gameState.snake.length - 1];
+    if (head.x < 0 || head.x >= BOARD_SIZE || head.y < 0 || head.y >= BOARD_SIZE) {
+        endGame();
+    }
+    for (let i = 0; i < gameState.snake.length - 1; i++) {
+        if (head.x === gameState.snake[i].x && head.y === gameState.snake[i].y) {
+            endGame();
+        }
+    }
 }
 
-// Reset game
-function resetGame() {
-    gameState.running = false;
-    gameState.snake = [...initialGameState.snake]; // Reset snake using spread operator
-    gameState.direction = initialGameState.direction;
-    gameState.apple = {};
-    gameState.score = 0;
-    spawnApple();
+const checkAppleCollision = () => {
+    const head = gameState.snake[gameState.snake.length - 1];
+    if (head.x === gameState.apple.x && head.y === gameState.apple.y) {
+        gameState.score += APPLE_SCORE;
+        gameState.apple = createApple();
+    }
+}
+
+const drawGame = () => {
+    // Clear the canvas
+    ctx.fillStyle = "black";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Draw the snake
+    gameState.snake.forEach((segment, index) => {
+        ctx.fillStyle = index === gameState.snake.length - 1 ? COLORS.snakeHead : COLORS.snakeBody;
+        // ctx.fillRect(segment.x * CELL_SIZE, segment.y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+        ctx.beginPath();
+        ctx.roundRect(segment.x * CELL_SIZE, segment.y * CELL_SIZE, CELL_SIZE - 2, CELL_SIZE - 2, 5);
+        ctx.fill();
+    });
+
+    // Draw the apple
+    ctx.fillStyle = COLORS.apple;
+    ctx.fillRect(gameState.apple.x * CELL_SIZE, gameState.apple.y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+
+    // Update the score
     scoreDisplay.textContent = gameState.score;
 }
 
-// Main game loop
-let lastFrameTime = 0;
-function gameLoop(currentTime) {
-    const deltaTime = (currentTime - lastFrameTime) / 1000; // Convert milliseconds to seconds
-
-    if (deltaTime < 1 / FPS) {
-        requestAnimationFrame(gameLoop);
-        return;
+// On arrow key press, update the direction
+document.addEventListener("keydown", (e) => {
+    switch (e.key) {
+        case "ArrowUp":
+            if (gameState.direction !== DIRECTIONS.Down) {
+                gameState.direction = DIRECTIONS.Up;
+            }
+            break;
+        case "ArrowDown":
+            if (gameState.direction !== DIRECTIONS.Up) {
+                gameState.direction = DIRECTIONS.Down;
+            }
+            break;
+        case "ArrowLeft":
+            if (gameState.direction !== DIRECTIONS.Right) {
+                gameState.direction = DIRECTIONS.Left;
+            }
+            break;
+        case "ArrowRight":
+            if (gameState.direction !== DIRECTIONS.Left) {
+                gameState.direction = DIRECTIONS.Right;
+            }
+            break;
     }
+});
 
-    if (!gameState.running) {
-        requestAnimationFrame(gameLoop);
-        return;
-    }
-
-    update(deltaTime);
-    drawBoard();
-
-    lastFrameTime = currentTime;
-
-    requestAnimationFrame(gameLoop);
-}
-
-// Initialize game
-function initGame() {
-    initBoard();
-
-    // Reset game state
-    resetGame();
-    gameState.running = true;
-
-    // Event listeners
-    document.addEventListener("keydown", handleInput);
-
-    // Start game loop
-    requestAnimationFrame(gameLoop);
-}
