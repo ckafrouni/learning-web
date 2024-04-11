@@ -67,6 +67,8 @@ const gameState = {
     snake: [],
     apple: {},
     direction: DIRECTIONS.Right,
+    nextDirection: null,
+    nextNextDirection: null,
     score: 0,
     interval: null,
 };
@@ -119,7 +121,38 @@ const updateGame = () => {
     drawGame();
 }
 
+const isOppositeDirection = (dir1, dir2) => {
+    return (dir1 === DIRECTIONS.Up && dir2 === DIRECTIONS.Down) ||
+        (dir1 === DIRECTIONS.Down && dir2 === DIRECTIONS.Up) ||
+        (dir1 === DIRECTIONS.Left && dir2 === DIRECTIONS.Right) ||
+        (dir1 === DIRECTIONS.Right && dir2 === DIRECTIONS.Left);
+}
+
 const updateSnake = () => {
+    let newDirection;
+    if (gameState.nextDirection && isOppositeDirection(gameState.direction, gameState.nextDirection)) {
+        // We skip the next direction if it is opposite to the current direction
+        if (gameState.nextNextDirection && !isOppositeDirection(gameState.direction, gameState.nextNextDirection)) {
+            // If the next next direction is not opposite to the current direction, we use it
+            newDirection = gameState.nextNextDirection;
+            gameState.nextDirection = null;
+            gameState.nextNextDirection = null;
+        } else {
+            // Otherwise, we use the current direction
+            newDirection = gameState.direction;
+            gameState.nextDirection = gameState.nextNextDirection;
+            gameState.nextNextDirection = null;
+        }
+    } else if (gameState.nextDirection) {
+        newDirection = gameState.nextDirection;
+        gameState.nextDirection = gameState.nextNextDirection;
+        gameState.nextNextDirection = null;
+    } else {
+        newDirection = gameState.direction;
+    }
+
+    gameState.direction = newDirection;
+
     const head = { ...gameState.snake[gameState.snake.length - 1] };
     switch (gameState.direction) {
         case DIRECTIONS.Up:
@@ -167,12 +200,11 @@ const checkAppleCollision = () => {
 const drawGame = () => {
     // Clear the canvas
     ctx.fillStyle = "black";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // Draw the snake
     gameState.snake.forEach((segment, index) => {
         ctx.fillStyle = index === gameState.snake.length - 1 ? COLORS.snakeHead : COLORS.snakeBody;
-        // ctx.fillRect(segment.x * CELL_SIZE, segment.y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
         ctx.beginPath();
         ctx.roundRect(segment.x * CELL_SIZE, segment.y * CELL_SIZE, CELL_SIZE - 2, CELL_SIZE - 2, 5);
         ctx.fill();
@@ -180,7 +212,9 @@ const drawGame = () => {
 
     // Draw the apple
     ctx.fillStyle = COLORS.apple;
-    ctx.fillRect(gameState.apple.x * CELL_SIZE, gameState.apple.y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+    ctx.beginPath();
+    ctx.roundRect(gameState.apple.x * CELL_SIZE, gameState.apple.y * CELL_SIZE, CELL_SIZE - 2, CELL_SIZE - 2, 20);
+    ctx.fill();
 
     // Update the score
     scoreDisplay.textContent = gameState.score;
@@ -188,27 +222,34 @@ const drawGame = () => {
 
 // On arrow key press, update the direction
 document.addEventListener("keydown", (e) => {
+    if (e.key !== "ArrowUp" && e.key !== "ArrowDown" && e.key !== "ArrowLeft" && e.key !== "ArrowRight") {
+        return;
+    }
+
+    if (gameState.status !== GAME_STATUS.running) {
+        return;
+    }
+
+    let newDirection;
     switch (e.key) {
         case "ArrowUp":
-            if (gameState.direction !== DIRECTIONS.Down) {
-                gameState.direction = DIRECTIONS.Up;
-            }
+            newDirection = DIRECTIONS.Up;
             break;
         case "ArrowDown":
-            if (gameState.direction !== DIRECTIONS.Up) {
-                gameState.direction = DIRECTIONS.Down;
-            }
+            newDirection = DIRECTIONS.Down;
             break;
         case "ArrowLeft":
-            if (gameState.direction !== DIRECTIONS.Right) {
-                gameState.direction = DIRECTIONS.Left;
-            }
+            newDirection = DIRECTIONS.Left;
             break;
         case "ArrowRight":
-            if (gameState.direction !== DIRECTIONS.Left) {
-                gameState.direction = DIRECTIONS.Right;
-            }
+            newDirection = DIRECTIONS.Right;
             break;
+    }
+
+    if (gameState.nextDirection === null) {
+        gameState.nextDirection = newDirection;
+    } else if (gameState.nextNextDirection === null) {
+        gameState.nextNextDirection = newDirection;
     }
 });
 
