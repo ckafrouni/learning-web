@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Website | {{ title }}</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="/static/style.css">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/ico" sizes="16x16" href="/static/assets/favicon.ico">
+
+    <!-- Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Anton&family=Exo+2:ital,wght@0,100..900;1,100..900&family=Oswald:wght@200..700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <span class="logo"><a href="/">Company Name</a></span>
+            <div class="nav-links">
+                <a class="btn" href="/about">About</a>
+                <a class="btn" href="/contact">Contact</a>
+            </div>
+            <div class="nav-auth-links">
+                {% if user %}
+                <a class="btn" href="/users/profile">Profile</a>
+                <a class="btn" href="/users/logout">Logout</a>
+                {% else %}
+                <a class="btn" href="/users/login">Login</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-container">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer-container">
+        <span>&copy; 2024 Company Name. All rights reserved.</span>
+    </footer>
+</body>
+
+</html>

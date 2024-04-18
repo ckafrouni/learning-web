@@ -1,0 +1,78 @@
+/* CSS Reset */
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    font-family: 'Exo 2', 'Roboto', sans-serif;
+    --clr-dark-blue: hsl(245, 58%, 20%);
+    --clr-darker-blue: hsl(245, 58%, 10%);
+}
+
+.app {
+    min-height: 100dvh;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    background-color: var(--clr-darker-blue);
+}
+
+.nav {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    text-align: center;
+    padding-block: 1rem;
+    background-color: var(--clr-dark-blue);
+}
+
+.nav__center>* {
+    margin-inline: 1rem
+}
+
+.nav__logo {
+    font-weight: 900;
+    font-size: 1.4em;
+    color: white;
+    text-decoration: none;
+}
+
+.nav__link {
+    color: white;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.footer {
+    background-color: var(--clr-dark-blue);
+    color: white;
+    text-align: center;
+    font-size: .7em;
+    padding-block: .4rem;
+}
+
+.articles {
+    width: min(95%, 1100px);
+    margin-inline: auto;
+    border-radius: 1rem;
+    padding: 1rem;
+    background-color: var(--clr-dark-blue);
+    color: white;
+}
+
+.articles__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    padding: 1rem;
+}
+
+.articles__article {
+    border: 1px solid #ccc;
+    border-radius: 1rem;
+    padding: 1rem;
+}

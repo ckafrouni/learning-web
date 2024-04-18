@@ -1,0 +1,125 @@
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    text-decoration: none;
+}
+
+a {
+    color: var(--color-white);
+}
+
+:root {
+    --color-light-purple: hsl(298, 79%, 49%);
+    --color-dark-purple: hsl(298, 79%, 10%);
+    --color-white: hsl(0, 0%, 100%);
+    --color-dark-grey: hsl(0, 0%, 2%);
+}
+
+body {
+    font-family: 'Exo 2', 'Roboto', sans-serif;
+    background-color: black;
+
+    display: flex;
+    flex-direction: column;
+
+    min-height: 100lvh;
+
+    outline: 1px dashed rgb(255, 225, 255);
+}
+
+/* Navbar */
+
+.navbar {
+    font-weight: 600;
+    padding-block: 1rem;
+}
+
+.logo {
+    font-weight: 900;
+    font-size: 1.5rem;
+}
+
+
+.nav-container {
+    width: 95%;
+    margin-inline: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.nav-container>* {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    flex: 1;
+}
+
+.nav-links {
+    justify-content: center;
+    font-size: 1.1rem;
+}
+
+.nav-auth-links {
+    justify-content: end;
+    font-size: .9rem;
+}
+
+/* Components */
+
+.btn {
+    padding: .2rem .6rem;
+    border-radius: .5rem;
+
+    transition: transform 150ms, box-shadow 150ms, background-color 150ms;
+}
+
+.btn:hover {
+    color: black;
+    background-color: white;
+    box-shadow: 4px 4px 5px var(--color-light-purple);
+}
+
+.btn:focus {
+    transform: translate(4px, 4px);
+    box-shadow: none;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    outline: 1px dashed red;
+    padding-block: 0 1rem;
+
+    label {
+        color: white;
+    }
+}
+
+/* Main */
+
+.main-container {
+    width: 90%;
+    margin-inline: auto;
+    margin-top: 2rem;
+    padding: 2rem;
+    outline: 4px dashed hsla(0, 0%, 100%, 0.267);
+    flex: 1;
+    border-radius: 1rem;
+}
+
+
+/* Footer */
+
+.footer-container {
+    text-align: center;
+    font-size: .8rem;
+    color: hsla(0, 0%, 100%, 0.566);
+    background-color: var(--color-dark-grey);
+    padding-block: .5rem;
+    margin-top: 1rem;
+}
