@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <link rel="stylesheet" href="style.css">
+    <script src="snake.js" type="module" defer></script>
+</head>
+
+<body>
+    <!-- 'data-state' attribute will be used to control the game state 
+        <data-state> ::=
+            'ready' (game is ready to start)
+            | 'running' (game is running)
+            | 'gameover' (game is over)
+            | 'paused' (game is paused)
+            | 'levelup' (game is in level up state) -->
+
+    <div class="app" id="app" data-state="ready" data-level="1">
+        <div class="title">
+            <h1 class="title">Snake Game</h1>
+            <span>Ready</span>
+        </div>
+
+        <div class="canvasWrapper">
+            <div class="canvasTop">
+                <div class="info">
+                    <p class="level" hidden>Level: <span id="level">1</span></p>
+                    <p class="score">Score: <span id="score">0</span></p>
+                    <p class="high-score" hidden>High Score: <span id="highScore">0</span></p>
+                </div>
+                <div class="controls">
+                    <button id="startBtn" class="btn">Start</button>
+                    <button id="pauseBtn" class="btn" disabled>Pause</button>
+                    <button id="resumeBtn" class="btn" disabled>Resume</button>
+                    <button id="resetBtn" class="btn">Reset</button>
+                </div>
+            </div>
+            <canvas class="gameCanvas" id="gameCanvas"></canvas>
+        </div>
+    </div>
+</body>
+
+</html>

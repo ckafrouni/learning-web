@@ -1,0 +1,137 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    color-scheme: light;
+
+    --clr-primary: rgb(0, 0, 0);
+
+    --clr-ready: #8a308a;
+    --clr-running: #308a30;
+    --clr-paused: #305b8a;
+    --clr-gameover: #8a3030;
+    --clr-levelup: #8a8a30;
+
+    --border-radius: .25rem;
+
+    --bg-clr: #fafafa;
+    --accent-clr: ;
+}
+
+
+body {
+    font-family: system-ui, sans-serif;
+    height: 100vh;
+}
+
+.app {
+    display: grid;
+    grid-template-rows: auto 1fr;
+    place-content: center;
+    height: 100%;
+}
+
+.title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 2rem;
+
+    span {
+        align-self: end;
+        font-size: 1rem;
+        font-weight: bold;
+    }
+}
+
+.canvasWrapper {
+    margin-block: auto;
+}
+
+.controls {
+    display: flex;
+    gap: .5rem;
+}
+
+.btn {
+    padding: .25rem .5rem;
+    border: none;
+    border-radius: var(--border-radius);
+    color: var(--clr-primary);
+    font-weight: bold;
+    scale: 1;
+    transition: scale .2s;
+}
+
+.btn:hover:not(:disabled) {
+    scale: 1.1;
+}
+
+.btn:active:not(:disabled) {
+    scale: 1;
+}
+
+.btn:disabled {
+    opacity: .5;
+}
+
+.canvasTop {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+    font-size: 1.5rem;
+    margin-bottom: .5rem;
+}
+
+.gameCanvas {
+    --block-size: calc(100% / 20);
+    width: fit-content;
+    border-radius: var(--border-radius);
+    width: 500px;
+    height: 500px;
+    background-color: var(--bg-clr);
+    background-image: linear-gradient(rgba(0, 0, 0, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+    background-size: var(--block-size) var(--block-size);
+    box-shadow: 0 0 100px var(--accent-clr);
+
+}
+
+#app[data-state="ready"] {
+
+    .gameCanvas {
+        --accent-clr: var(--clr-ready);
+    }
+}
+
+#app[data-state="running"] {
+
+    .gameCanvas {
+        --accent-clr: var(--clr-running);
+    }
+}
+
+#app[data-state="paused"] {
+
+
+    .gameCanvas {
+        --accent-clr: var(--clr-paused);
+    }
+}
+
+#app[data-state="gameover"] {
+
+    .gameCanvas {
+        --accent-clr: var(--clr-gameover);
+    }
+}
+
+#app[data-state="levelup"] {
+
+    .gameCanvas {
+        --accent-clr: var(--clr-levelup);
+    }
+}

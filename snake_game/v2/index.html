@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snake</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        .app {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #e9f3e9;
+            font-family: system-ui, sans-serif;
+        }
+
+        #canvas {
+            --n-blocks: 20;
+            --block-size: calc(100% / var(--n-blocks));
+            --outline-width: 5px;
+            --border-radius: 5px;
+            aspect-ratio: 1;
+            width: 90vmin;
+            outline: var(--outline-width) solid #000;
+            border-radius: var(--border-radius);
+            background-size: var(--block-size) var(--block-size);
+            background-image: linear-gradient(to right,
+                    hsl(0, 0%, 80%) 1px,
+                    transparent 1px),
+                linear-gradient(to bottom, hsl(0, 0%, 80%) 1px, transparent 1px);
+        }
+
+        #canvas[walls="true"] {
+            border: var(--outline-width) solid #a6aea6;
+        }
+
+        #canvas[walls="false"] {
+            border: var(--outline-width) dashed #a6aea6;
+        }
+
+        .status {
+            text-align: center;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        #level,
+        #status {
+            margin-left: 0.5rem;
+        }
+
+        #level {
+            color: blue;
+        }
+
+        #status[status="running"] {
+            color: green;
+        }
+
+        #status[status="game-over"] {
+            color: red;
+        }
+
+        #status[status="paused"] {
+            color: orange;
+        }
+
+        .stats {
+            margin-top: 1rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div class="app">
+        <div class="status">
+            <div>Level <span id="level"></span></div>
+            <div>Status <span id="status"></span></div>
+        </div>
+        <canvas id="canvas"></canvas>
+        <div class="stats">
+            <p>Score: <span id="score">0</span></p>
+        </div>
+    </div>
+    <script src="snake.js"></script>
+</body>
+
+</html>
