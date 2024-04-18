@@ -1,0 +1,28 @@
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    color-scheme: dark;
+}
+
+body {
+    font-family: system-ui, sans-serif;
+}
+
+#app {
+    display: grid;
+    place-items: center;
+    height: 100vh;
+}
+
+#gameCanvas {
+    width: 80vmin;
+    aspect-ratio: 1;
+    outline: 5px solid hsl(177, 62%, 31%);
+    background-color: hsl(0, 2%, 92%);
+}
